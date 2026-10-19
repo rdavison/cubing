@@ -3,6 +3,7 @@ public import Cubing.Cube3x3.Notation
 public import Mathlib.Algebra.Group.End
 public import Mathlib.Algebra.Group.Action.Faithful
 public import Mathlib.Tactic.Abel
+meta import CubingDoc
 
 set_option doc.verso true
 
@@ -209,6 +210,13 @@ def colors (g : Cube) : Facelet → Face
   | .edge e k => edgeFace (g.2.right⁻¹ e) (k - Multiplicative.toAdd (g.2.left e))
 
 /-!
+Every picture in this book is {name}`colors` evaluated on the facelets of the net. Below, the net
+after a right turn and then an up turn; stepping back and forth shows the colours at each state:
+
+```cube
+R U
+```
+
 The colouring is not a separate model. At every sticker position it shows the colour of the
 sticker that the state has carried there.
 -/
@@ -315,6 +323,16 @@ theorem colors_mul (h g : Cube) (p : Facelet) : colors (h * g) p = colors g (p.p
   | edge e k =>
     simp only [colors, Facelet.pull, Prod.snd_mul, OPerm.mul_right, OPerm.mul_left_apply,
       mul_inv_rev, Perm.mul_apply, toAdd_mul, sub_add_eq_sub_sub]
+
+/-!
+Turning the right face and then turning it back returns every facelet to its colour, which is
+{name}`colors_mul` applied to a move and its inverse. Press the 3D button to watch the layer rotate
+by {name}`Face.turnVec`:
+
+```cube
+R R'
+```
+-/
 
 /-- A face turn, read geometrically: off the layer nothing moves, and on it each facelet comes
 from the one a quarter turn carries to it. -/

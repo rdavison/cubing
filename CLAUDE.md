@@ -84,6 +84,12 @@ Lean.
   only prose changes (module docs live in `.olean.server`). `{chapter}` therefore deletes the
   extracted JSON whenever any library source differs from the hash in
   `.lake/build/literate/**/*.src-hash`.
+- Cube pictures inside chapters: a library file with `meta import CubingDoc` may put a
+  ```` ```cube ```` block in its docs (inside `namespace Cubing.Cube3x3`, where `cube` resolves).
+  `CubingDoc.lean` only validates the moves, failing the library build on a bad one, and emits a
+  code block marked with a leading control character. Verso's `block_to_literate` hook is unusable
+  (it reads the inline attribute's table), so `{chapter}` post-processes the loaded part with
+  `cubeifyDoc` (`book/CubingSite/Widget.lean`), which replaces marked blocks with real pictures.
 - Cube pictures: a ```` ```cube ```` block in the book (`book/CubingSite/Widget.lean`)
   parses its moves with the library's `parseAlg?` and colours every intermediate state with
   `Cubing.Cube3x3.colors`, at elaboration time. The page's JS only draws. Keep all puzzle logic

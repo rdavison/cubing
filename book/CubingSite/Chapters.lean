@@ -1,4 +1,5 @@
 import VersoManual
+import CubingSite.Widget
 
 /-!
 Chapters are whole library modules, included literately. Every inclusion is recorded so that
@@ -67,6 +68,15 @@ def chapter : PartCommand
     includedChapters.modify (·.insert modName.getId)
     invalidateStaleLiterate modName.getId
     let name ← getModuleWithDocs (Syntax.mkStrLit "..") modName title none
+    let name ← do
+      let name' ← mkFreshUserName (name ++ `cubes)
+      addAndCompile <| .defnDecl {
+        name := name', levelParams := [],
+        type := .app (mkConst ``Verso.Doc.VersoDoc) (mkConst ``Manual),
+        value := .app (mkConst ``CubingSite.cubeifyDoc) (mkConst name),
+        hints := .regular 0, safety := .safe
+      }
+      pure name'
     -- Chapters sit directly under a top-level part, after any section opened before them.
     closePartsUntil 2 (← getRef).getHeadInfo.getPos!
     addPart <| .included (mkIdentFrom modName name)

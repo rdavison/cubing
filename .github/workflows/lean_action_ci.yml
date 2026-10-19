@@ -21,7 +21,8 @@ jobs:
             exit 1
           fi
       # One cache for both workspaces: book/ shares the root's packages, so this holds the
-      # compiled Verso and the library. Mathlib's build comes from its own cache instead.
+      # compiled Verso and the library. The site executable links Mathlib, so Mathlib's native
+      # objects (build/ir) are cached too; its .olean files (build/lib) come from Mathlib's cache.
       - name: Restore the Lake cache
         id: lake-cache
         uses: actions/cache/restore@v4
@@ -29,7 +30,7 @@ jobs:
           path: |
             .lake
             book/.lake
-            !.lake/packages/mathlib/.lake/build
+            !.lake/packages/mathlib/.lake/build/lib
           key: lake-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'book/lake-manifest.json') }}-${{ github.sha }}
           restore-keys: lake-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'book/lake-manifest.json') }}-
       # Missing docstrings and prose that Verso cannot check are warnings; --wfail makes them errors.
@@ -51,7 +52,7 @@ jobs:
           path: |
             .lake
             book/.lake
-            !.lake/packages/mathlib/.lake/build
+            !.lake/packages/mathlib/.lake/build/lib
           key: ${{ steps.lake-cache.outputs.cache-primary-key }}
       - name: Upload the site for Pages
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'

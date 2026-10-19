@@ -71,7 +71,9 @@ Lean.
   prose with a declaration.
 - `book/` sets `packagesDir = "../.lake/packages"` (and the same in its manifest), so both
   workspaces share one Mathlib and one compiled Verso. CI caches `.lake` and `book/.lake` together,
-  after the site build; Mathlib's own build comes from `lake exe cache get`.
+  after the site build. The site executable links Mathlib, and Mathlib's cache ships only
+  `.olean` files, so the cache keeps Mathlib's compiled objects (`build/ir`, about 300 MB) and
+  excludes only its `build/lib`.
 - `book/` is a separate Lake package because each `{chapter}` runs `lake query
   +Mod:literate` in the root project. Running that query in the workspace that is already
   building would contend for its lock.

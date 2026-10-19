@@ -379,4 +379,32 @@ def cube : CodeBlockExpanderOf Unit
       | throwErrorAt code "not a sequence of Singmaster moves: {src}"
     ``(Verso.Doc.Block.other (CubingSite.Block.cube $(quote moves) $(quote turns) $(quote frames)) #[])
 
+open Verso.Doc in
+/-- A picture in place of each library code block that the library's `cube` docstring block
+marked: a code block that starts with a control character, the word `cube` and a newline,
+followed by the moves. (The block cannot be a custom block, because Verso's literate extraction
+has no working hook for those.) -/
+partial def cubeifyBlock : Block Manual → Block Manual
+  | .code s =>
+    match s.toList with
+    | '\x01' :: 'c' :: 'u' :: 'b' :: 'e' :: '\n' :: rest =>
+      match cubeFrames (String.ofList rest) with
+      | some (moves, turns, frames) => .other (Block.cube moves turns frames) #[]
+      | none => .code s
+    | _ => .code s
+  | .concat xs => .concat (xs.map cubeifyBlock)
+  | .blockquote xs => .blockquote (xs.map cubeifyBlock)
+  | .other b xs => .other b (xs.map cubeifyBlock)
+  | b => b
+
+open Verso.Doc in
+/-- {name}`cubeifyBlock` throughout a part and its sub-parts. -/
+partial def cubeifyPart (p : Part Manual) : Part Manual :=
+  { p with content := p.content.map cubeifyBlock, subParts := p.subParts.map cubeifyPart }
+
+open Verso.Doc in
+/-- A chapter whose library `cube` blocks are drawn from the model. -/
+def cubeifyDoc (d : VersoDoc Manual) : VersoDoc Manual :=
+  { d with construct := fun r => cubeifyPart (d.construct r) }
+
 end CubingSite

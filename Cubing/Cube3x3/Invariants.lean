@@ -1,5 +1,6 @@
 module
 public import Cubing.Cube3x3.Notation
+meta import CubingDoc
 public import Mathlib.GroupTheory.Perm.Sign
 public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 public import Mathlib.Algebra.Group.Prod
@@ -172,6 +173,22 @@ theorem move_mem_valid (f : Face) : move f ∈ valid := by
   exact ⟨rfl, twistSum_move_fst f, twistSum_move_snd f⟩
 
 /-!
+Turning a face moves pieces but keeps all three totals. Longer sequences can reorient corners
+considerably, yet the twists they leave always add up to a multiple of three, because the total
+is a homomorphism ({name}`twistSum`) that is trivial on every generator. The Sune is a familiar
+example:
+
+```cube
+R U R' U R U2 R'
+```
+
+Likewise {lean}`move .F` flips four edges, an even number, so the flip total stays a multiple of
+two:
+
+```cube
+F
+```
+
 Since the valid states form a subgroup containing every generator, they contain everything the
 generators produce.
 -/

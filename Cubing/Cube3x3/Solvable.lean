@@ -2,6 +2,7 @@ module
 public import Cubing.Cube3x3.Generate
 public import Mathlib.GroupTheory.Perm.Closure
 public import Mathlib.GroupTheory.Perm.Cycle.Concrete
+meta import CubingDoc
 
 set_option doc.verso true
 
@@ -34,6 +35,14 @@ theorem tPerm_fst : (cube[R U R' U' R' F R2 U' R' U' R U R' F']).1.right = swap 
 theorem tPerm_snd : (cube[R U R' U' R' F R2 U' R' U' R U R' F']).2.right = swap .UR .UL := by
   refine Equiv.ext fun c => ?_; cases c <;> rfl
 
+/-!
+Step through the T-perm to watch it swap two corners and two edges:
+
+```cube
+R U R' U' R' F R2 U' R' U' R U R' F'
+```
+-/
+
 /-- The corner 8-cycle, as a list in the order the pieces travel. -/
 def cornerCycle : List Corner := [.URF, .DBL, .DFR, .UFL, .DLF, .DRB, .ULB, .UBR]
 
@@ -44,19 +53,51 @@ def edgeCycle : List Edge := [.UR, .FL, .DL, .DF, .DR, .FR, .UF, .UB, .BR, .DB, 
 theorem cycle8 : (cube[U D2 L2]).1.right = cornerCycle.formPerm := by
   refine Equiv.ext fun c => ?_; cases c <;> rfl
 
+/-!
+Here is the corner cycle {name}`cycle8` moves:
+
+```cube
+U D2 L2
+```
+-/
+
 /-- {lit}`U R U D L` moves all twelve edges round a single cycle. -/
 theorem cycle12 : (cube[U R U D L]).2.right = edgeCycle.formPerm := by
   refine Equiv.ext fun c => ?_; cases c <;> rfl
+
+/-!
+And the edge cycle {name}`cycle12` moves:
+
+```cube
+U R U D L
+```
+-/
 
 /-- The A-perm cycles three corners and leaves every edge in place. -/
 theorem aPerm : cube[R' F R' B2 R F' R' B2 R2] =
     (inr (swap .URF .UBR * swap .URF .ULB), 1) := by
   cube_eq
 
+/-!
+The A-perm, {name}`aPerm`, cycles three corners and nothing else:
+
+```cube
+R' F R' B2 R F' R' B2 R2
+```
+-/
+
 /-- The U-perm cycles three edges and leaves every corner in place. -/
 theorem uPerm : cube[R U' R U R U R U' R' U' R2] =
     (1, inr (swap .UR .UF * swap .UR .UL)) := by
   cube_eq
+
+/-!
+The U-perm, {name}`uPerm`, cycles three edges and nothing else:
+
+```cube
+R U' R U R U R U' R' U' R2
+```
+-/
 
 set_option maxRecDepth 4096 in
 /-- Repeated sledgehammers twist corner UBR forward and corner URF back. -/
@@ -64,9 +105,25 @@ theorem twoCornerTwist : cube[R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R 
     (inl (pairTwist .UBR .URF), 1) := by
   cube_eq
 
+/-!
+Repeated sledgehammers, {name}`twoCornerTwist`, twist two corners in opposite directions:
+
+```cube
+R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U'
+```
+-/
+
 /-- A fourteen-move sequence flips edges UF and UL. -/
 theorem twoEdgeFlip : cube[F R B L U L' U B' R' F' L' U' L U'] = (1, inl (pairTwist .UF .UL)) := by
   cube_eq
+
+/-!
+and the fourteen-move sequence {name}`twoEdgeFlip` flips two edges:
+
+```cube
+F R B L U L' U B' R' F' L' U' L U'
+```
+-/
 
 /-!
 # Every permutation is a set-up

@@ -12,6 +12,10 @@ name = "Cubing"
 weakLeanOptions = {experimental.module = true}
 leanOptions = {doc.verso = true, linter.missingDocs = true}
 
+[[lean_lib]]
+name = "CubingDoc"
+weakLeanOptions = {experimental.module = true}
+
 [[lean_exe]]
 name = "cubing-exe"
 root = "Main"

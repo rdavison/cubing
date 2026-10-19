@@ -1,5 +1,6 @@
 module
 public import Cubing.Cube3x3.Moves
+meta import CubingDoc
 
 set_option doc.verso true
 
@@ -39,6 +40,22 @@ structure Move where
 def Move.toCube (m : Move) : Cube := move m.face ^ m.turn.quarters
 
 /-!
+A bare letter is a clockwise quarter turn, a prime undoes it and a two is a half turn:
+
+```cube
+R
+```
+
+```cube
+R'
+```
+
+```cube
+R2
+```
+-/
+
+/-!
 # Sequences
 
 A sequence of moves is applied left to right. Each new move multiplies on the *left*, because
@@ -71,6 +88,24 @@ theorem alg_append (xs ys : List Move) : alg (xs ++ ys) = alg ys * alg xs := by
   exact foldl_mul ys _
 
 /-!
+Order matters. {lean}`alg [⟨.R, .cw⟩, ⟨.U, .cw⟩]` turns R first and then U, which gives a different
+state from U first and then R. Step through both:
+
+```cube
+R U
+```
+
+```cube
+U R
+```
+
+Longer sequences give the familiar algorithms. Repeating the four moves {lit}`R U R' U'` six times
+restores the cube, which is proved at the end of this chapter:
+
+```cube
+R U R' U'
+```
+
 Every sequence is a reachable state, since each move is a power of a face turn.
 -/
 

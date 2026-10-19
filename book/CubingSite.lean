@@ -45,39 +45,6 @@ F
 
 {chapter Cubing.Cube3x3.Generate "Generating the cube group"}
 
-## Algorithms used in the proof
-
-The proof that every valid state is reachable uses these algorithms. The T-perm swaps two corners
-and two edges:
-
-```cube
-R U R' U' R' F R2 U' R' U' R U R' F'
-```
-
-The A-perm cycles three corners and nothing else:
-
-```cube
-R' F R' B2 R F' R' B2 R2
-```
-
-The U-perm cycles three edges and nothing else:
-
-```cube
-R U' R U R U R U' R' U' R2
-```
-
-Repeated sledgehammers twist two corners in opposite directions:
-
-```cube
-R' D' R D R' D' R D U R' D' R D R' D' R D R' D' R D R' D' R D U'
-```
-
-and a fourteen-move sequence flips two edges:
-
-```cube
-F R B L U L' U B' R' F' L' U' L U'
-```
-
 {chapter Cubing.Cube3x3.Solvable "Reachable states"}
 
 {chapter Cubing.Cube3x3.Facelets "Stickers and facelets"}

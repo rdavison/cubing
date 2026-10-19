@@ -1,0 +1,20 @@
+name: Lean Action CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - name: Forbid constructs the axiom audit cannot see in executable code
+        run: |
+          if grep -rnE 'implemented_by|@\[extern|unsafe|partial def|native_decide|bv_decide' TomYJerryImpl; then
+            echo "Executable code must not use implemented_by, extern, unsafe, partial, native_decide or bv_decide."
+            exit 1
+          fi
+      - uses: leanprover/lean-action@v1

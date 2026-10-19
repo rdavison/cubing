@@ -1,0 +1,27 @@
+name = "tom-y-jerry"
+version = "0.1.0"
+defaultTargets = ["TomYJerry", "TomYJerryAudit"]
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4"
+rev = "master"
+
+[[lean_lib]]
+name = "TomYJerry"
+weakLeanOptions = {"experimental.module" = true}
+
+[[lean_exe]]
+name = "tom-y-jerry-exe"
+root = "Main"
+
+[[lean_lib]]
+name = "TomYJerryImpl"
+precompileModules = true
+weakLeanOptions = {"experimental.module" = true}
+
+[[lean_lib]]
+name = "TomYJerryAudit"
+
+[[lean_lib]]
+name = "TomYJerryResults"

@@ -1,0 +1,20 @@
+name = "cubing-site"
+version = "0.1.0"
+defaultTargets = ["cubing-site"]
+
+[[require]]
+name = "verso"
+git = "https://github.com/leanprover/verso"
+rev = "v4.29.0-rc4"
+
+[[require]]
+name = "cubing"
+path = ".."
+
+[[lean_lib]]
+name = "CubingSite"
+
+[[lean_exe]]
+name = "cubing-site"
+root = "Main"
+supportInterpreter = true

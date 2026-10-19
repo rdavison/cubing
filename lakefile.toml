@@ -1,6 +1,6 @@
-name = "tom-y-jerry"
+name = "cubing"
 version = "0.1.0"
-defaultTargets = ["TomYJerry", "TomYJerryAudit"]
+defaultTargets = ["Cubing", "CubingAudit"]
 
 [[require]]
 name = "mathlib"
@@ -8,20 +8,26 @@ git = "https://github.com/leanprover-community/mathlib4"
 rev = "master"
 
 [[lean_lib]]
-name = "TomYJerry"
-weakLeanOptions = {"experimental.module" = true}
+name = "Cubing"
+weakLeanOptions = {experimental.module = true}
+leanOptions = {doc.verso = true, linter.missingDocs = true}
 
 [[lean_exe]]
-name = "tom-y-jerry-exe"
+name = "cubing-exe"
 root = "Main"
 
 [[lean_lib]]
-name = "TomYJerryImpl"
+name = "CubingImpl"
 precompileModules = true
 weakLeanOptions = {"experimental.module" = true}
 
 [[lean_lib]]
-name = "TomYJerryAudit"
+name = "CubingAudit"
 
 [[lean_lib]]
-name = "TomYJerryResults"
+name = "CubingResults"
+
+[[require]]
+name = "verso"
+git = "https://github.com/leanprover/verso"
+rev = "v4.29.0-rc4"

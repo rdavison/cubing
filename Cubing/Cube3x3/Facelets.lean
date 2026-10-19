@@ -101,7 +101,7 @@ inductive Facelet where
   /-- The centre of a face. -/ | centre (f : Face)
   /-- The sticker of corner slot {lean}`c` at orientation {lean}`k`. -/ | corner (c : Corner) (k : ZMod 3)
   /-- The sticker of edge slot {lean}`e` at orientation {lean}`k`. -/ | edge (e : Edge) (k : ZMod 2)
-  deriving DecidableEq
+  deriving DecidableEq, Fintype
 
 /-- The faces of a corner's three stickers, in orientation order: the up or down sticker
 first, then clockwise. -/
@@ -226,5 +226,118 @@ theorem colors_edge (g : Cube) (e : Edge) (k : ZMod 2) :
 /-- On the solved cube, every face of the net shows a single colour. -/
 theorem colors_one_net (f : Face) (i : Fin 9) : colors 1 (netFacelet f i) = f := by
   revert f i; decide
+
+/-!
+# The cube in space
+
+To draw the cube in three dimensions, each facelet needs a place. The axes point towards the
+right, up and front faces. A facelet sits on a cubie, whose centre has coordinates in
+{lit}`{-1, 0, 1}`, and faces outwards in the direction of one face.
+-/
+
+/-- A point or direction in space, with coordinates towards the right, up and front faces. -/
+abbrev Vec := ℤ × ℤ × ℤ
+
+/-- The dot product. -/
+def Vec.dot (u v : Vec) : ℤ := u.1 * v.1 + u.2.1 * v.2.1 + u.2.2 * v.2.2
+
+/-- The cross product. -/
+def Vec.cross (u v : Vec) : Vec :=
+  (u.2.1 * v.2.2 - u.2.2 * v.2.1, u.2.2 * v.1 - u.1 * v.2.2, u.1 * v.2.1 - u.2.1 * v.1)
+
+/-- The outward unit vector of a face. -/
+def Face.normal : Face → Vec
+  | .R => (1, 0, 0) | .L => (-1, 0, 0)
+  | .U => (0, 1, 0) | .D => (0, -1, 0)
+  | .F => (0, 0, 1) | .B => (0, 0, -1)
+
+/-- The centre of the cubie a facelet lies on: the sum of the normals of the faces it touches. -/
+def Facelet.cubie : Facelet → Vec
+  | .centre f => f.normal
+  | .corner c _ => let (a, b, d) := cornerStickers c; a.normal + b.normal + d.normal
+  | .edge e _ => let (a, b) := edgeStickers e; a.normal + b.normal
+
+/-- The direction a facelet faces: the normal of its home face. -/
+def Facelet.normal : Facelet → Vec
+  | .centre f => f.normal
+  | .corner c k => (cornerFace c k).normal
+  | .edge e k => (edgeFace e k).normal
+
+/-- Each facelet of the net faces outwards from the face it is drawn on. -/
+theorem normal_netFacelet (f : Face) (i : Fin 9) : (netFacelet f i).normal = f.normal := by
+  revert f i; decide +kernel
+
+/-- No two facelets share a cubie and a direction, so the picture puts each in its own place. -/
+theorem Facelet.cubie_normal_injective (p q : Facelet) (hc : p.cubie = q.cubie)
+    (hn : p.normal = q.normal) : p = q := by
+  revert p q; decide +kernel
+
+/-- Whether a facelet lies on the layer that turns with a face. -/
+def Face.layer (f : Face) (p : Facelet) : Prop := f.normal.dot p.cubie = 1
+
+instance (f : Face) (p : Facelet) : Decidable (f.layer p) :=
+  inferInstanceAs (Decidable (_ = _))
+
+/-- The clockwise quarter turn about a face, as seen from outside it: a rotation by a quarter turn
+in the negative sense about the outward normal {lit}`n`, which sends {lean}`v` to
+{lit}`(n · v) n - n × v`. -/
+def Face.turnVec (f : Face) (v : Vec) : Vec := f.normal.dot v • f.normal - f.normal.cross v
+
+/-- A quarter turn keeps the distance along its axis, so it keeps its layer. -/
+theorem Face.dot_turnVec (f : Face) (v : Vec) : f.normal.dot (f.turnVec v) = f.normal.dot v := by
+  obtain ⟨x, y, z⟩ := v
+  cases f <;> simp [Face.turnVec, Face.normal, Vec.dot, Vec.cross]
+
+/-- A quarter turn is undone by three more. -/
+theorem Face.turnVec_injective (f : Face) : Function.Injective f.turnVec := by
+  intro ⟨x, y, z⟩ ⟨x', y', z'⟩ h
+  cases f <;> simp [Face.turnVec, Face.normal, Vec.dot, Vec.cross] at h ⊢ <;> omega
+
+/-!
+A state moves facelets as it moves stickers. The facelet whose sticker a state carries to a given
+position can be read off its tables, and the colour there is the colour that facelet had before.
+-/
+
+/-- For the state {lean}`h` and a facelet, the facelet whose sticker {lean}`h` carries there. -/
+def Facelet.pull (h : Cube) : Facelet → Facelet
+  | .centre f => .centre f
+  | .corner c k => .corner (h.1.right⁻¹ c) (k - Multiplicative.toAdd (h.1.left c))
+  | .edge e k => .edge (h.2.right⁻¹ e) (k - Multiplicative.toAdd (h.2.left e))
+
+/-- After {lean}`g` and then {lean}`h`, each position shows the colour {lean}`g` left on the facelet
+that {lean}`h` carries there. -/
+theorem colors_mul (h g : Cube) (p : Facelet) : colors (h * g) p = colors g (p.pull h) := by
+  cases p with
+  | centre f => rfl
+  | corner c k =>
+    simp only [colors, Facelet.pull, Prod.fst_mul, OPerm.mul_right, OPerm.mul_left_apply,
+      mul_inv_rev, Perm.mul_apply, toAdd_mul, sub_add_eq_sub_sub]
+  | edge e k =>
+    simp only [colors, Facelet.pull, Prod.snd_mul, OPerm.mul_right, OPerm.mul_left_apply,
+      mul_inv_rev, Perm.mul_apply, toAdd_mul, sub_add_eq_sub_sub]
+
+/-- A face turn, read geometrically: off the layer nothing moves, and on it each facelet comes
+from the one a quarter turn carries to it. -/
+theorem pull_move (f : Face) (p : Facelet) :
+    (f.layer p → f.turnVec ((p.pull (move f)).cubie) = p.cubie ∧
+      f.turnVec ((p.pull (move f)).normal) = p.normal) ∧
+    (¬ f.layer p → p.pull (move f) = p) := by
+  revert f p; decide +kernel
+
+/-- The turns are the rotations they look like. Turning face {lean}`f` carries the colour at each
+facelet on its layer to the facelet that the rotation {name}`Face.turnVec` puts in its place,
+and leaves the rest of the cube alone. The 3D picture in
+the book rotates layers by exactly this rotation. -/
+theorem colors_move_mul (f : Face) (g : Cube) :
+    (∀ p q : Facelet, f.layer p → f.turnVec p.cubie = q.cubie → f.turnVec p.normal = q.normal →
+      colors (move f * g) q = colors g p) ∧
+    (∀ p : Facelet, ¬ f.layer p → colors (move f * g) p = colors g p) := by
+  refine ⟨fun p q hp hc hn => ?_, fun p hp => by rw [colors_mul, (pull_move f p).2 hp]⟩
+  have hq : f.layer q := by
+    unfold Face.layer at hp ⊢
+    rw [← hc, Face.dot_turnVec, hp]
+  obtain ⟨hc', hn'⟩ := (pull_move f q).1 hq
+  rw [colors_mul, Facelet.cubie_normal_injective _ _
+    (f.turnVec_injective (hc'.trans hc.symm)) (f.turnVec_injective (hn'.trans hn.symm))]
 
 end Cubing.Cube3x3

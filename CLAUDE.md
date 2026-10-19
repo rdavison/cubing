@@ -128,6 +128,8 @@ are fine.
 - **`Cube3x3/Facelets.lean`.** The sticker action `OPerm α n` on `α × ZMod n` (faithful).
   - `toStickers : Cube →* Perm Sticker` with `toStickers_injective`.
   - `colors` on the 54-facelet net, tied to `toStickers` by `colors_corner` and `colors_edge`.
+  - Geometry for the 3D view: `Facelet.cubie`/`Facelet.normal` in ℤ³, `Face.layer`,
+    `Face.turnVec`. `colors_move_mul` proves a face turn is that rotation of its layer.
 
 Libraries: `Cubing` (maths, Mathlib), `CubingImpl` (executable, no Mathlib,
 `precompileModules`; currently a stub), `CubingAudit` (axiom pins, non-module, default target),

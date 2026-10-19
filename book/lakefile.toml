@@ -1,6 +1,8 @@
 name = "cubing-site"
 version = "0.1.0"
 defaultTargets = ["cubing-site"]
+# Share the root project's dependencies: one Mathlib and one Verso for both workspaces.
+packagesDir = "../.lake/packages"
 
 [[require]]
 name = "verso"

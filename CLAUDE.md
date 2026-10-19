@@ -24,7 +24,6 @@ lake env lean Cubing/Cube3x3/Basic.lean   # elaborate one file; needs its import
 lake build cubing-exe && lake exe cubing-exe   # prints the net after R U R' U'
 
 cd book                          # the site is a separate Lake package
-lake exe cache get               # its own copy of the mathlib oleans
 lake build                       # elaborates every chapter and computes every cube picture
 lake exe cubing-site        # writes the site to book/_out/html-multi
 python3 -m http.server 8737 --directory _out/html-multi   # preview it
@@ -70,6 +69,9 @@ Lean.
   without the line the prose reaches the book as raw markup. `{chapter}` enforces this.
 - A `/-! … -/` placed directly before `end` rendered as raw text in the book. Follow mid-file
   prose with a declaration.
+- `book/` sets `packagesDir = "../.lake/packages"` (and the same in its manifest), so both
+  workspaces share one Mathlib and one compiled Verso. CI caches `.lake` and `book/.lake` together,
+  after the site build; Mathlib's own build comes from `lake exe cache get`.
 - `book/` is a separate Lake package because each `{chapter}` runs `lake query
   +Mod:literate` in the root project. Running that query in the workspace that is already
   building would contend for its lock.

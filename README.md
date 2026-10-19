@@ -15,7 +15,7 @@ algorithms, number of moves, and amount to memorise.
 ```sh
 lake exe cache get
 lake build --wfail                       # the library; the theorems are the tests
-cd book && lake exe cache get && lake build && lake exe cubing-site   # the site
+cd book && lake build && lake exe cubing-site   # the site
 ```
 
 The site is written to `book/_out/html-multi`.

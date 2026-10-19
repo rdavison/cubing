@@ -33,3 +33,11 @@ a default target, so `lake build` enforces it.
 /-- info: 'Cubing.Cube3x3.colors_edge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms Cubing.Cube3x3.colors_edge
+
+/-- info: 'Cubing.Cube3x3.Facelet.cubie_normal_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms Cubing.Cube3x3.Facelet.cubie_normal_injective
+
+/-- info: 'Cubing.Cube3x3.colors_move_mul' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms Cubing.Cube3x3.colors_move_mul

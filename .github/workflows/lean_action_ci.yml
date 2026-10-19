@@ -20,18 +20,40 @@ jobs:
             echo "Executable code must not use implemented_by, extern, unsafe, partial, native_decide or bv_decide."
             exit 1
           fi
+      # One cache for both workspaces: book/ shares the root's packages, so this holds the
+      # compiled Verso and the library. The site executable links Mathlib, so Mathlib's native
+      # objects (build/ir) are cached too; its .olean files (build/lib) come from Mathlib's cache.
+      - name: Restore the Lake cache
+        id: lake-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            .lake
+            book/.lake
+            !.lake/packages/mathlib/.lake/build/lib
+          key: lake-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'book/lake-manifest.json') }}-${{ github.sha }}
+          restore-keys: lake-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json', 'book/lake-manifest.json') }}-
       # Missing docstrings and prose that Verso cannot check are warnings; --wfail makes them errors.
       - uses: leanprover/lean-action@v1
         with:
           build-args: "--wfail"
+          use-github-cache: false
       # The site build elaborates every chapter's prose against the library and computes every
       # cube picture from the model, so a stale chapter or a missing one fails here.
       - name: Build the site
         working-directory: book
         run: |
-          lake exe cache get
           lake build
           lake exe cubing-site
+      - name: Save the Lake cache
+        if: steps.lake-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .lake
+            book/.lake
+            !.lake/packages/mathlib/.lake/build/lib
+          key: ${{ steps.lake-cache.outputs.cache-primary-key }}
       - name: Upload the site for Pages
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
